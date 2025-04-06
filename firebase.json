@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "LatteLiteraryLounge",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
