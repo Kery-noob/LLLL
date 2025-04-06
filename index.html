@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Логово Литературного Дракона</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --dragon-gold: #FFD700;
+            --dragon-red: #B71C1C;
+            --parchment: #F5E6D3;
+            --ink: #1A237E;
+            --shadow: rgba(0, 0, 0, 0.2);
+            
+            --bg-light: #FFFFFF;
+            --text-light: #000000;
+            --accent-light: #3E2723;
+            
+            --bg-dark: #1a1a1a;
+            --text-dark: #e0e0e0;
+            --accent-dark: #8D6E63;
+            
+            --bg-color: var(--bg-light);
+            --text-color: var(--text-light);
+            --accent-color: var(--accent-light);
+            
+            --middle-layer-opacity: 1;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: var(--bg-dark);
+            --text-color: var(--text-dark);
+            --accent-color: var(--accent-dark);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 10px;
+            padding: 10px;
+            font-family: 'Playfair Display', serif;
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        /* Слои */
+        .background-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .middle-layer {
+            background-color: var(--bg-color);
+            opacity: var(--middle-layer-opacity);
+            border-radius: 10px;
+            box-shadow: 0 0 10px var(--shadow);
+            z-index: 0;
+        }
+
+        .top-layer {
+            opacity: 1 !important;
+            background: transparent !important;
+            border: 2px solid var(--accent-color);
+            z-index: 1;
+        }
+
+        /* Драконьи мудрости */
+        .dragon-wisdom {
+            grid-column: 1 / -1;
+            background: var(--accent-color);
+            color: var(--dragon-gold);
+            padding: 10px;
+            text-align: center;
+            font-style: italic;
+            transition: transform 0.5s ease;
+            z-index: 2;
+        }
+
+        /* Боковые панели */
+        .side-panel {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        /* Музыкальный плеер */
+        .music-player {
+            padding: 10px;
+            background: var(--accent-color);
+            color: var(--parchment);
+            border-radius: 10px;
+        }
+
+        .player-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 5px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--dragon-gold);
+            border-radius: 5px;
+            width: 0;
+        }
+
+        .playlist {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .playlist-item {
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .playlist-item:hover {
+            background: var(--dragon-gold);
+            color: var(--text-color);
+        }
+
+        /* Таймеры */
+        .timer-panel {
+            padding: 10px;
+            background: var(--accent-color);
+            color: var(--parchment);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .timer-label {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .timer-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        /* Архив */
+        .archive {
+            flex-grow: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .archive-search {
+            display: flex;
+            gap: 5px;
+        }
+
+        .archive-search input {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid var(--accent-color);
+            border-radius: 5px;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        .folder {
+            padding: 10px;
+            border: 1px solid var(--accent-color);
+            border-radius: 5px;
+        }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .folder-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .file-list {
+            margin-left: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .file-item:hover {
+            background: var(--accent-color);
+            color: var(--parchment);
+        }
+
+        /* Управление фоном */
+        .background-control {
+            padding: 10px;
+            background: var(--accent-color);
+            color: var(--parchment);
+            border-radius: 10px;
+        }
+
+        .background-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .background-preview {
+            aspect-ratio: 16/9;
+            background-size: cover;
+            background-position: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .background-preview:hover {
+            transform: scale(1.05);
+        }
+
+        /* Редактор */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+        }
+
+        .editor-frame {
+            flex-grow: 1;
+            padding: 20px;
+            position: relative;
+        }
+
+        .editor {
+            width: 100%;
+            height: 100%;
+            resize: none;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: transparent;
+        }
+
+        /* Заметки */
+        .notes-tree {
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .note-category {
+            margin-bottom: 10px;
+        }
+
+        .note-category-header {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .note-category-header:hover {
+            background: var(--accent-color);
+            color: var(--parchment);
+        }
+
+        .note-category-content {
+            margin-left: 20px;
+            padding: 5px;
+            display: none;
+        }
+
+        .note-category.active .note-category-content {
+            display: block;
+        }
+
+        .note-subcategory {
+            margin: 5px 0;
+            padding-left: 10px;
+            border-left: 2px solid var(--accent-color);
+        }
+
+        .note-item {
+            padding: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .note-item:hover {
+            background: var(--accent-color);
+            color: var(--parchment);
+        }
+
+        .note-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .tag {
+            padding: 2px 5px;
+            background: var(--accent-color);
+            color: var(--parchment);
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .tag:hover {
+            background: var(--dragon-gold);
+            color: var(--text-color);
+        }
+
+        /* Кнопки и элементы управления */
+        button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background: var(--accent-color);
+            color: var(--parchment);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--dragon-gold);
+            color: var(--text-color);
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 5px;
+            border: 1px solid var(--accent-color);
+            border-radius: 5px;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        /* Справка */
+        .help-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: var(--parchment);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            color: var(--text-color);
+        }
+
+        .help-content {
+            max-width: 800px;
+        }
+
+        .help-section {
+            margin-bottom: 20px;
+        }
+
+        .help-section h3 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .help-section ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        .help-section li {
+            margin: 5px 0;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background: var(--accent-color);
+            color: var(--parchment);
+            border-radius: 5px;
+            z-index: 3000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 90% { opacity: 1; }
+        }
+
+        /* Адаптивный дизайн */
+        @media (max-width: 1200px) {
+            body {
+                grid-template-columns: 250px 1fr 250px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                width: 300px;
+                background: var(--bg-color);
+                z-index: 1500;
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .side-panel.active {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Фоновый слой -->
+    <div class="background-layer"></div>
+
+    <!-- Драконьи мудрости -->
+    <div class="dragon-wisdom" id="dragonWisdom">
+        Загружаем мудрость древних...
+    </div>
+
+    <!-- Левая панель -->
+    <aside class="side-panel middle-layer">
+        <!-- Музыкальный плеер -->
+        <div class="music-player">
+            <h3>Музыка для вдохновения</h3>
+            <div class="player-controls">
+                <button onclick="togglePlay()">
+                    <i class="fas fa-play" id="playPauseIcon"></i>
+                </button>
+                <div class="progress-bar" onclick="seekAudio(event)">
+                    <div class="progress" id="audioProgress"></div>
+                </div>
+                <input type="range" min="0" max="100" value="50" oninput="setVolume(this.value)">
+            </div>
+            <input type="file" accept="audio/*" onchange="addCustomMusic(event)" id="musicUpload">
+            <div class="playlist" id="playlist"></div>
+        </div>
+
+        <!-- Архив -->
+        <div class="archive middle-layer">
+            <h3>Архив свитков</h3>
+            <div class="archive-search">
+                <input type="text" placeholder="Поиск..." oninput="searchArchive(this.value)">
+            </div>
+            <div id="archiveFolders"></div>
+        </div>
+
+        <!-- Таймер рабочей сессии -->
+        <div class="timer-panel">
+            <div class="timer-label">Рабочая сессия</div>
+            <div class="timer-value" id="sessionTimer">00:00:00</div>
+            <div id="sessionLogin"></div>
+        </div>
+    </aside>
+
+    <!-- Основной контент -->
+    <main class="editor-container">
+        <!-- Генератор первых строк -->
+        <div class="first-line-generator middle-layer">
+            <h3>Начни историю</h3>
+            <div class="genre-selector">
+                <button class="genre-button" onclick="generateLine('fantasy')">Фэнтези</button>
+                <button class="genre-button" onclick="generateLine('mystery')">Мистика</button>
+                <button class="genre-button" onclick="generateLine('romance')">Романтика</button>
+                <button class="genre-button" onclick="generateLine('adventure')">Приключения</button>
+                <button class="genre-button" onclick="generateLine('daily')">Повседневность</button>
+                <button class="genre-button" onclick="generateLine('drama')">Драма</button>
+            </div>
+            <div class="generated-line" id="generatedLine">
+                Нажми на жанр, чтобы получить первую строку...
+            </div>
+            <button onclick="useGeneratedLine()">Использовать</button>
+        </div>
+
+        <!-- Редактор -->
+        <div class="editor-frame top-layer">
+            <div class="editor-toolbar">
+                <input type="text" id="fileName" placeholder="Название файла">
+                <input type="text" id="userLogin" placeholder="Логин для сохранения">
+                <button onclick="saveFile()">Сохранить</button>
+                <button onclick="toggleTheme()">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+            <textarea id="editor" class="editor" placeholder="Начните писать здесь..."></textarea>
+        </div>
+    </main>
+
+    <!-- Правая панель -->
+    <aside class="side-panel middle-layer">
+        <!-- Управление фоном -->
+        <div class="background-control">
+            <h3>Фон</h3>
+            <input type="file" accept="image/*" onchange="addCustomBackground(event)">
+            <div class="background-grid" id="backgroundGrid"></div>
+        </div>
+
+        <!-- Заметки -->
+        <div class="notes-tree" id="notesTree"></div>
+
+        <!-- Таймер до конца суток -->
+        <div class="timer-panel">
+            <div class="timer-label">До конца дня</div>
+            <div class="timer-value" id="dayTimer">00:00:00</div>
+        </div>
+    </aside>
+
+    <!-- Кнопка справки -->
+    <div class="help-button" onclick="showHelp()">?</div>
+
+    <!-- Модальные окна -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content help-content">
+            <h2>Добро пожаловать в Логово Литературного Дракона!</h2>
+            
+            <div class="help-section">
+                <h3>Начало работы</h3>
+                <ul>
+                    <li>Введите логин и название файла в верхней части редактора</li>
+                    <li>Нажмите "Сохранить" для создания новой папки с вашим логином</li>
+                    <li>Доступ к папке сохраняется в течение 42 часов</li>
+                    <li>Все изменения автоматически сохраняются</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>Основные функции</h3>
+                <ul>
+                    <li>Редактор текста с автосохранением</li>
+                    <li>Генератор первых строк для вдохновения</li>
+                    <li>Драконьи мудрости каждые 20 секунд</li>
+                    <li>Музыкальный плеер с возможностью добавления своей музыки</li>
+                    <li>Настройка фона и прозрачности интерфейса</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>Система заметок</h3>
+                <ul>
+                    <li>10 основных категорий для организации идей</li>
+                    <li>Теги для быстрого поиска</li>
+                    <li>Перекрёстные ссылки между заметками</li>
+                    <li>Древовидная структура для удобной навигации</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>Таймеры и статистика</h3>
+                <ul>
+                    <li>Таймер рабочей сессии (активируется после 10 слов)</li>
+                    <li>Таймер до конца суток</li>
+                    <li>Статистика по словам и времени работы</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>Преимущества использования</h3>
+                <ul>
+                    <li>Всё необходимое для писателя в одном месте</li>
+                    <li>Автоматическое сохранение прогресса</li>
+                    <li>Удобная организация заметок и идей</li>
+                    <li>Инструменты для вдохновения и мотивации</li>
+                </ul>
+            </div>
+
+            <button onclick="closeModal('helpModal')">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <h2>Заметка</h2>
+            <select id="noteCategory">
+                <option value="characters">Персонажи</option>
+                <option value="plot">Сюжет</option>
+                <option value="locations">Локации</option>
+                <option value="timeline">Хронология</option>
+                <option value="conflicts">Конфликты</option>
+                <option value="dialogues">Диалоги</option>
+                <option value="artifacts">Артефакты</option>
+                <option value="worldSystem">Система мира</option>
+                <option value="worldHistory">История мира</option>
+                <option value="themes">Темы</option>
+            </select>
+            <input type="text" id="noteTitle" placeholder="Заголовок">
+            <textarea id="noteContent" placeholder="Содержание"></textarea>
+            <input type="text" id="noteTags" placeholder="Теги (через запятую)">
+            <div id="crossReferences"></div>
+            <button onclick="saveNote()">Сохранить</button>
+            <button onclick="closeModal('noteModal')">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        // Состояние приложения
+        const appState = {
+            currentFile: {
+                name: '',
+                content: '',
+                login: ''
+            },
+            archive: {},
+            notes: {
+                characters: [],
+                plot: [],
+                locations: [],
+                timeline: [],
+                conflicts: [],
+                dialogues: [],
+                artifacts: [],
+                worldSystem: [],
+                worldHistory: [],
+                themes: []
+            },
+            audioPlayer: new Audio(),
+            playlist: [],
+            currentTrack: 0,
+            theme: 'light',
+            sessionTimer: {
+                startTime: null,
+                login: null,
+                lastActivity: null
+            },
+            backgrounds: [
+                'url("https://source.unsplash.com/random/1920x1080/?fantasy")',
+                'url("https://source.unsplash.com/random/1920x1080/?library")',
+                'url("https://source.unsplash.com/random/1920x1080/?castle")',
+                'url("https://source.unsplash.com/random/1920x1080/?dragon")'
+            ],
+            dragonWisdoms: [
+                "Пиши от сердца, правь разумом...",
+                "Каждое слово - это искра для нового пламени...",
+                "В тишине рождаются самые громкие истории...",
+                "Драконы не пишут черновики, они выжигают истории...",
+                "Твоё перо острее клыков и когтей...",
+                "История начинается там, где заканчивается страх..."
+            ],
+            firstLines: {
+                fantasy: [
+                    "Драконы никогда не опаздывают на чай...",
+                    "Магия всегда имеет свою цену, и сегодня пришло время платить...",
+                    "В подвале старого замка обнаружилась дверь, которой там никогда не было..."
+                ],
+                mystery: [
+                    "Часы пробили тринадцать, хотя на циферблате было только двенадцать делений...",
+                    "Все зеркала в доме показывали разные отражения...",
+                    "Письмо пришло через пятьдесят лет после смерти отправителя..."
+                ],
+                romance: [
+                    "Она собиралась сказать 'нет', но судьба сказала 'да'...",
+                    "Это была любовь с первого взгляда. Жаль, что они смотрели в разные стороны...",
+                    "Между ними было два часовых пояса и одно разбитое сердце..."
+                ],
+                adventure: [
+                    "Карта сокровищ оказалась на обратной стороне проездного билета...",
+                    "Чемодан был слишком лёгким для того, что в нём должно было быть...",
+                    "Компас всегда показывал на запад, даже когда его клали на бок..."
+                ],
+                daily: [
+                    "Кот заговорил ровно в полдень обычного вторника...",
+                    "Счёт из кофейни содержал послание, написанное кофейными пятнами...",
+                    "Растение на подоконнике выросло за ночь до потолка..."
+                ],
+                drama: [
+                    "Последнее письмо пришло, когда прощаться было уже поздно...",
+                    "Фотография изменилась, стоило отвернуться...",
+                    "Часы остановились ровно в тот момент, когда всё должно было начаться..."
+                ]
+            }
+        };
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            startWisdomRotation();
+            initializeAudioPlayer();
+            initializeTimers();
+            updateThemeIcon();
+            setupEventListeners();
+            initializeNotesTree();
+            initializeBackgrounds();
+            showHelp(); // Показываем справку при первом запуске
+        });
+
+        // Таймеры
+        function initializeTimers() {
+            // Обновление таймера рабочей сессии
+            setInterval(() => {
+                if (appState.sessionTimer.startTime && appState.sessionTimer.login) {
+                    const now = Date.now();
+                    if (now - appState.sessionTimer.lastActivity > 5 * 60 * 1000) {
+                        // Пауза после 5 минут бездействия
+                        appState.sessionTimer.startTime = null;
+                        document.getElementById('sessionTimer').textContent = '00:00:00';
+                        document.getElementById('sessionLogin').textContent = '';
+                    } else {
+                        const elapsed = Math.floor((now - appState.sessionTimer.startTime) / 1000);
+                        const hours = Math.floor(elapsed / 3600);
+                        const minutes = Math.floor((elapsed % 3600) / 60);
+                        const seconds = elapsed % 60;
+                        document.getElementById('sessionTimer').textContent = 
+                            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        document.getElementById('sessionLogin').textContent = `Логин: ${appState.sessionTimer.login}`;
+                    }
+                }
+            }, 1000);
+
+            // Обновление таймера до конца суток
+            setInterval(() => {
+                const now = new Date();
+                const endOfDay = new Date();
+                endOfDay.setHours(23, 59, 59, 999);
+                const remaining = endOfDay - now;
+                const hours = Math.floor(remaining / 3600000);
+                const minutes = Math.floor((remaining % 3600000) / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                document.getElementById('dayTimer').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+                // Музыкальный плеер
+        function initializeAudioPlayer() {
+            appState.audioPlayer.addEventListener('timeupdate', updateProgress);
+            appState.audioPlayer.addEventListener('ended', playNext);
+            updatePlaylist();
+        }
+
+        function togglePlay() {
+            if (appState.audioPlayer.paused) {
+                appState.audioPlayer.play();
+                document.getElementById('playPauseIcon').className = 'fas fa-pause';
+            } else {
+                appState.audioPlayer.pause();
+                document.getElementById('playPauseIcon').className = 'fas fa-play';
+            }
+        }
+
+        function addCustomMusic(event) {
+            const files = event.target.files;
+            for (const file of files) {
+                const url = URL.createObjectURL(file);
+                appState.playlist.push({
+                    name: file.name,
+                    url: url
+                });
+            }
+            updatePlaylist();
+            if (appState.playlist.length === 1) {
+                loadTrack(0);
+            }
+        }
+
+        function updateProgress() {
+            const progress = (appState.audioPlayer.currentTime / appState.audioPlayer.duration) * 100;
+            document.getElementById('audioProgress').style.width = `${progress}%`;
+        }
+
+        function seekAudio(event) {
+            const bar = event.target;
+            const percent = event.offsetX / bar.offsetWidth;
+            appState.audioPlayer.currentTime = percent * appState.audioPlayer.duration;
+        }
+
+        function setVolume(value) {
+            appState.audioPlayer.volume = value / 100;
+        }
+
+        function playNext() {
+            const nextTrack = (appState.currentTrack + 1) % appState.playlist.length;
+            loadTrack(nextTrack);
+        }
+
+        function loadTrack(index) {
+            if (index < 0 || index >= appState.playlist.length) return;
+            appState.currentTrack = index;
+            appState.audioPlayer.src = appState.playlist[index].url;
+            appState.audioPlayer.load();
+            appState.audioPlayer.play();
+            updatePlaylist();
+        }
+
+        function updatePlaylist() {
+            const container = document.getElementById('playlist');
+            container.innerHTML = appState.playlist.map((track, index) => `
+                <div class="playlist-item ${index === appState.currentTrack ? 'active' : ''}"
+                     onclick="loadTrack(${index})">
+                    ${track.name}
+                </div>
+            `).join('');
+        }
+
+        // Управление фоном
+        function initializeBackgrounds() {
+            const grid = document.getElementById('backgroundGrid');
+            grid.innerHTML = appState.backgrounds.map((bg, index) => `
+                <div class="background-preview" 
+                     style="background-image: ${bg}"
+                     onclick="setBackground('${bg}')">
+                </div>
+            `).join('');
+        }
+
+        function setBackground(bg) {
+            document.querySelector('.background-layer').style.backgroundImage = bg;
+            saveToStorage();
+        }
+
+        function addCustomBackground(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const bg = `url(${e.target.result})`;
+                appState.backgrounds.push(bg);
+                setBackground(bg);
+                initializeBackgrounds();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Архив и файлы
+        function saveFile() {
+            const fileName = document.getElementById('fileName').value.trim();
+            const userLogin = document.getElementById('userLogin').value.trim();
+            const content = document.getElementById('editor').value;
+
+            if (!fileName || !userLogin) {
+                showNotification('Укажите название файла и логин!');
+                return;
+            }
+
+            if (!appState.archive[userLogin]) {
+                appState.archive[userLogin] = {
+                    files: {},
+                    lastAccess: Date.now(),
+                    rules: `Правила для папки ${userLogin}:\n1. Доступ к папке ограничен 42 часами\n2. Используйте уникальные имена файлов\n3. Регулярно сохраняйте изменения`
+                };
+            }
+
+            appState.archive[userLogin].files[fileName] = {
+                content: content,
+                lastModified: Date.now()
+            };
+
+            appState.currentFile = { name: fileName, content: content, login: userLogin };
+            saveToStorage();
+            updateArchiveDisplay();
+            showNotification('Файл сохранен');
+
+            // Проверяем количество слов для запуска таймера
+            const wordCount = content.trim().split(/\s+/).length;
+            if (wordCount >= 10 && !appState.sessionTimer.startTime) {
+                appState.sessionTimer.startTime = Date.now();
+                appState.sessionTimer.login = userLogin;
+            }
+            appState.sessionTimer.lastActivity = Date.now();
+        }
+
+        function loadFile(login, fileName) {
+            const folder = appState.archive[login];
+            if (!folder) return;
+
+            const timeSinceAccess = Date.now() - folder.lastAccess;
+            if (timeSinceAccess > 42 * 60 * 60 * 1000) {
+                showNotification('Срок доступа к папке истёк!');
+                return;
+            }
+
+            const file = folder.files[fileName];
+            document.getElementById('fileName').value = fileName;
+            document.getElementById('userLogin').value = login;
+            document.getElementById('editor').value = file.content;
+            
+            folder.lastAccess = Date.now();
+            saveToStorage();
+
+            // Запускаем таймер, если достаточно слов
+            const wordCount = file.content.trim().split(/\s+/).length;
+            if (wordCount >= 10) {
+                appState.sessionTimer.startTime = Date.now();
+                appState.sessionTimer.login = login;
+                appState.sessionTimer.lastActivity = Date.now();
+            }
+        }
+
+        function searchArchive(query) {
+            query = query.toLowerCase();
+            const results = [];
+
+            for (const [login, folder] of Object.entries(appState.archive)) {
+                if (login.toLowerCase().includes(query)) {
+                    results.push({ type: 'folder', login });
+                }
+                for (const fileName of Object.keys(folder.files)) {
+                    if (fileName.toLowerCase().includes(query)) {
+                        results.push({ type: 'file', login, fileName });
+                    }
+                }
+            }
+
+            updateArchiveDisplay(results);
+        }
+
+        function updateArchiveDisplay(searchResults = null) {
+            const container = document.getElementById('archiveFolders');
+            container.innerHTML = '';
+
+            const folders = searchResults || Object.entries(appState.archive);
+            
+            for (const [login, folder] of Object.entries(appState.archive)) {
+                if (searchResults && !searchResults.some(r => r.login === login)) continue;
+
+                const folderElement = document.createElement('div');
+                folderElement.className = 'folder';
+                
+                const header = document.createElement('div');
+                header.className = 'folder-header';
+                header.innerHTML = `
+                    <h3>${login}</h3>
+                    <div class="folder-controls">
+                        <button onclick="showModal('folderModal')">Настройки</button>
+                        <span>Доступ: ${formatTimeLeft(folder.lastAccess)}</span>
+                    </div>
+                `;
+
+                const fileList = document.createElement('div');
+                fileList.className = 'file-list';
+                
+                for (const [fileName, file] of Object.entries(folder.files)) {
+                    if (searchResults && !searchResults.some(r => r.fileName === fileName)) continue;
+
+                    const fileElement = document.createElement('div');
+                    fileElement.className = 'file-item';
+                    fileElement.innerHTML = `
+                        <span>${fileName}</span>
+                        <small>${new Date(file.lastModified).toLocaleDateString()}</small>
+                    `;
+                    fileElement.onclick = () => loadFile(login, fileName);
+                    fileList.appendChild(fileElement);
+                }
+
+                folderElement.appendChild(header);
+                folderElement.appendChild(fileList);
+                container.appendChild(folderElement);
+            }
+        }
+
+        // Заметки
+        function initializeNotesTree() {
+            const container = document.getElementById('notesTree');
+            const categories = {
+                characters: {
+                    icon: 'user',
+                    title: 'Персонажи',
+                    description: 'Описание внешности, характера, мотивации и развития'
+                },
+                plot: {
+                    icon: 'book',
+                    title: 'Сюжет',
+                    description: 'Основные линии, главные события и повороты'
+                },
+                locations: {
+                    icon: 'map-marker-alt',
+                    title: 'Локации',
+                    description: 'Детали окружающей среды, мира или конкретных мест'
+                },
+                timeline: {
+                    icon: 'clock',
+                    title: 'Хронология',
+                    description: 'Последовательность событий в истории'
+                },
+                conflicts: {
+                    icon: 'crossed-swords',
+                    title: 'Конфликты',
+                    description: 'Основные противоречия, движущие сюжет'
+                },
+                dialogues: {
+                    icon: 'comments',
+                    title: 'Диалоги',
+                    description: 'Важные разговоры, фразы, подчёркивающие характеры'
+                },
+                artifacts: {
+                    icon: 'gem',
+                    title: 'Артефакты',
+                    description: 'Уникальные предметы, их свойства и значение'
+                },
+                worldSystem: {
+                    icon: 'globe',
+                    title: 'Система мира',
+                    description: 'Магия, технологии, законы или правила мира'
+                },
+                worldHistory: {
+                    icon: 'scroll',
+                    title: 'История мира',
+                    description: 'Ключевые прошлые события, влияющие на сюжет'
+                },
+                themes: {
+                    icon: 'theater-masks',
+                    title: 'Темы',
+                    description: 'Главные идеи или философские вопросы произведения'
+                }
+            };
+
+            container.innerHTML = Object.entries(categories).map(([key, {icon, title, description}]) => `
+                <div class="note-category" data-category="${key}">
+                    <div class="note-category-header" onclick="toggleCategory('${key}')">
+                        <i class="fas fa-${icon}"></i>
+                        <span>${title}</span>
+                        <span class="note-count">(${appState.notes[key].length})</span>
+                    </div>
+                    <div class="note-category-content" id="category-${key}">
+                        <div class="note-subcategory">${description}</div>
+                        ${renderNotes(key)}
+                        <button onclick="createNote('${key}')">Добавить заметку</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleCategory(category) {
+            const element = document.querySelector(`[data-category="${category}"]`);
+            element.classList.toggle('active');
+        }
+
+        function renderNotes(category) {
+            return appState.notes[category].map(note => `
+                <div class="note-item" onclick="viewNote('${category}', ${note.id})">
+                    <h4>${note.title}</h4>
+                    <div class="note-tags">
+                        ${note.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function createNote(category) {
+            document.getElementById('noteCategory').value = category;
+            showModal('noteModal');
+        }
+
+        function saveNote() {
+            const category = document.getElementById('noteCategory').value;
+            const title = document.getElementById('noteTitle').value;
+            const content = document.getElementById('noteContent').value;
+            const tags = document.getElementById('noteTags').value
+                .split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag);
+
+            if (!title || !content) {
+                showNotification('Заполните заголовок и содержание заметки!');
+                return;
+            }
+
+            const note = {
+                id: Date.now(),
+                title,
+                content,
+                tags,
+                created: Date.now(),
+                references: findCrossReferences(content)
+            };
+
+            appState.notes[category].push(note);
+            saveToStorage();
+            initializeNotesTree();
+            closeModal('noteModal');
+            showNotification('Заметка сохранена');
+        }
+
+        function findCrossReferences(content) {
+            const references = [];
+            for (const [category, notes] of Object.entries(appState.notes)) {
+                for (const note of notes) {
+                    if (content.includes(note.title)) {
+                        references.push({
+                            category,
+                            noteId: note.id,
+                            title: note.title
+                        });
+                    }
+                }
+            }
+            return references;
+        }
+
+        function viewNote(category, id) {
+            const note = appState.notes[category].find(n => n.id === id);
+            if (!note) return;
+
+            document.getElementById('noteCategory').value = category;
+            document.getElementById('noteTitle').value = note.title;
+            document.getElementById('noteContent').value = note.content;
+            document.getElementById('noteTags').value = note.tags.join(', ');
+
+            const refsContainer = document.getElementById('crossReferences');
+            refsContainer.innerHTML = note.references.map(ref => `
+                <div class="reference" onclick="viewNote('${ref.category}', ${ref.noteId})">
+                    ${ref.title}
+                </div>
+            `).join('');
+
+            showModal('noteModal');
+        }
+
+        // Генератор первых строк
+        function generateLine(genre) {
+            const lines = appState.firstLines[genre];
+            const randomIndex = Math.floor(Math.random() * lines.length);
+            const generatedLine = document.getElementById('generatedLine');
+            generatedLine.textContent = lines[randomIndex];
+            generatedLine.dataset.line = lines[randomIndex];
+        }
+
+        function useGeneratedLine() {
+            const line = document.getElementById('generatedLine').dataset.line;
+            if (!line) return;
+
+            const editor = document.getElementById('editor');
+            editor.value = line + '\n\n' + editor.value;
+        }
+
+        // Драконьи мудрости
+        function startWisdomRotation() {
+            const wisdom = document.getElementById('dragonWisdom');
+            let index = 0;
+
+            function rotateWisdom() {
+                wisdom.style.transform = 'translateY(-100%)';
+                setTimeout(() => {
+                    index = (index + 1) % appState.dragonWisdoms.length;
+                    wisdom.textContent = appState.dragonWisdoms[index];
+                    wisdom.style.transform = 'translateY(0)';
+                }, 500);
+            }
+
+            wisdom.textContent = appState.dragonWisdoms[0];
+            setInterval(rotateWisdom, 20000);
+        }
+
+        // Тема и прозрачность
+        function toggleTheme() {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            appState.theme = newTheme;
+            updateThemeIcon();
+            saveToStorage();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('themeIcon');
+            icon.className = appState.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function updateOpacity(value) {
+            document.documentElement.style.setProperty('--middle-layer-opacity', value / 100);
+        }
+
+        // Справка
+        function showHelp() {
+            showModal('helpModal');
+        }
+
+        // Вспомогательные функции
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        function formatTimeLeft(lastAccess) {
+            const elapsed = Date.now() - lastAccess;
+            const remaining = Math.max(0, 42 * 60 * 60 * 1000 - elapsed);
+            const hours = Math.floor(remaining / (60 * 60 * 1000));
+            const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+            return `${hours}ч ${minutes}м`;
+        }
+
+        // Хранение данных
+        function saveToStorage() {
+            localStorage.setItem('dragonLair', JSON.stringify({
+                archive: appState.archive,
+                notes: appState.notes,
+                theme: appState.theme,
+                playlist: appState.playlist.map(track => ({
+                    name: track.name,
+                    url: track.url
+                })),
+                backgrounds: appState.backgrounds
+            }));
+        }
+
+        function loadFromStorage() {
+            const saved = JSON.parse(localStorage.getItem('dragonLair') || '{}');
+            Object.assign(appState, saved);
+            
+            if (appState.theme) {
+                document.documentElement.setAttribute('data-theme', appState.theme);
+            }
+            
+            if (saved.playlist) {
+                appState.playlist = saved.playlist;
+                updatePlaylist();
+            }
+            
+            updateArchiveDisplay();
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Автосохранение при вводе
+            let saveTimeout;
+            document.getElementById('editor').addEventListener('input', () => {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    if (appState.currentFile.name && appState.currentFile.login) {
+                        saveFile();
+                    }
+                }, 3000);
+            });
+
+            // Предотвращение случайного закрытия
+            window.addEventListener('beforeunload', (e) => {
+                if (document.getElementById('editor').value.trim()) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+
+            // Горячие клавиши
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveFile();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
